@@ -124,3 +124,14 @@ int main()
 	}
 }
 ```
+## Building
+
+CMake and OpenSSL development files is neeeded.
+
+### Building on Linux
+```
+cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles"
+cd build
+make
+sudo make install
+```
