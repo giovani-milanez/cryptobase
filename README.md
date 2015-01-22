@@ -81,3 +81,46 @@ int main()
 	}
 }
 ```
+Issuing a Attribute Certificate
+
+```c++
+#include "cryptobase/AttributeCertificate.hpp"
+#include "cryptobase/Certificate.hpp"
+#include "cryptobase/PrivateKey.hpp"
+
+#include <iostream>
+
+using namespace cryptobase;
+
+int main()
+{
+	OpenSSL_add_all_algorithms();
+	try
+	{
+		ByteArray privKeyPemBa = createFromFile("/home/giovani/certificado/giovani/keys");
+		ByteArray certPemBa = createFromFile("/home/giovani/certificado/giovani/cert");
+		ByteArray holderPemBa = createFromFile("/home/giovani/certificado/cert_juliano.pem");
+
+		PrivateKey privKey(std::string((const char *)privKeyPemBa.begin(), privKeyPemBa.size()), "123456");
+		Certificate certIssuer(std::string((const char *)certPemBa.begin(), certPemBa.size()));
+		Certificate certHolder(std::string((const char *)holderPemBa.begin(), holderPemBa.size()));
+
+		std::uint64_t serial = 1;
+		AttributeCertificate ac(privKey,
+					DigestAlg::SHA512,
+					Holder(certHolder),
+					certIssuer.getSubject(),
+					serial,
+					AttributeCertificateValidity(30), // 30 minutes validity
+					std::vector<Attribute>{ {ObjectIdentifier("1.2.3.4.5"), "administrator"} }
+					);
+		// save to disk
+		std::ofstream fileAc("/home/giovani/certificado/giovani/ac");
+		fileAc << ac.getDerEncoded();
+	}
+	catch(const cryptobase::Exception& ex)
+	{
+		std::cout << ex.displayText() << std::endl;
+	}
+}
+```
